@@ -1,4 +1,4 @@
-package io.github.Bucket1572.shuffle.plugin.color
+package io.github.Bucket1572.shuffle.plugin.tag
 
 import net.kyori.adventure.text.format.TextColor
 

@@ -1,7 +1,7 @@
 package io.github.Bucket1572.shuffle.plugin.score
 
-import io.github.Bucket1572.shuffle.plugin.color.ColorTag
-import io.github.Bucket1572.shuffle.plugin.color.getTextColor
+import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
+import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
