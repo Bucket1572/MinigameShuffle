@@ -19,7 +19,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
 
     implementation(kotlin("stdlib"))
-    implementation("io.github.monun:tap-api:4.3.2")
+    implementation("io.github.monun:tap-api:4.1.2")
     implementation("io.github.monun:invfx:3.1.0")
     implementation("io.github.monun:kommand-api:2.8.1")
     implementation("io.github.monun:heartbeat-coroutines:0.0.3")

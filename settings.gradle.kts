@@ -1,1 +1,1 @@
-rootProject.name = "shuffle"
+rootProject.name = "MinigameShuffle"
