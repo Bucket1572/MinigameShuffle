@@ -1,7 +1,8 @@
 package io.github.Bucket1572.shuffle.plugin.minigame
 
-import io.github.Bucket1572.shuffle.plugin.color.ColorTag
-import io.github.Bucket1572.shuffle.plugin.color.getTextColor
+import io.github.Bucket1572.shuffle.plugin.result.MinigameResult
+import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
+import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
 import io.github.monun.heartbeat.coroutines.HeartbeatScope
 import io.github.monun.heartbeat.coroutines.Suspension
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ abstract class Minigame(
     fun start() {
         broadcast()
         describe()
+        prepare()
         startCountDown()
     }
 
@@ -35,6 +37,8 @@ abstract class Minigame(
         server.broadcast(description)
     }
 
+    abstract fun prepare()
+
     private fun startCountDown() {
         HeartbeatScope().launch {
             val suspension = Suspension()
@@ -48,19 +52,23 @@ abstract class Minigame(
     private fun end() {
         server.onlinePlayers.forEach { player ->
             run {
-                val judgement = judge(player)
-                if (judgement) {
-                    reward(player)
-                } else {
-                    punish(player)
+                when (judge(player)) {
+                    MinigameResult.WIN -> winResponse(player)
+                    MinigameResult.LOSE -> loseResponse(player)
+                    MinigameResult.FAIL -> failResponse(player)
                 }
             }
         }
+        cleanUp()
     }
 
-    abstract fun judge(player: Player): Boolean
+    abstract fun judge(player: Player): MinigameResult
 
-    abstract fun reward(player: Player)
+    abstract fun winResponse(player: Player)
 
-    abstract fun punish(player: Player)
+    abstract fun loseResponse(player: Player)
+
+    abstract fun failResponse(player: Player)
+
+    abstract fun cleanUp()
 }
