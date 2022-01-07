@@ -7,4 +7,5 @@ libraries:
   - org.jetbrains.kotlin:kotlin-reflect:1.6.0
   - io.github.monun:tap:4.1.2
   - io.github.monun:invfx:3.1.0
+  - io.github.monun:heartbeat-coroutines:0.0.3
   - io.github.monun:kommand:2.8.1
