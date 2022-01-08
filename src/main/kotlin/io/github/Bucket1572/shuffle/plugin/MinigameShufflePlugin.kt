@@ -1,5 +1,6 @@
 package io.github.Bucket1572.shuffle.plugin
 
+import io.github.Bucket1572.shuffle.plugin.minigame.ClimbingContest
 import io.github.Bucket1572.shuffle.plugin.minigame.SplendidGems
 import io.github.Bucket1572.shuffle.plugin.minigame.description.DescriptionUtility
 import io.github.Bucket1572.shuffle.plugin.score.ScoreHandlingUtility
@@ -23,6 +24,13 @@ class MinigameShufflePlugin: JavaPlugin() {
             executes {
                 ScoreHandlingUtility.initScoreBoard(server)
                 val minigame = SplendidGems(server)
+                minigame.start()
+            }
+        }
+        register("climb") {
+            executes {
+                ScoreHandlingUtility.initScoreBoard(server)
+                val minigame = ClimbingContest(server)
                 minigame.start()
             }
         }
