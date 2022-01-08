@@ -48,3 +48,10 @@ fun PlayerInventory.removeAll(predicate: (ItemStack?) -> Boolean): Boolean {
     }
     return removedFlag
 }
+
+fun Player.reward(itemStacks: List<ItemStack>) {
+    val exceededItemStack = this.inventory.addItem(*itemStacks.toTypedArray())
+    exceededItemStack.values.forEach {
+        this.world.dropItemNaturally(this.location, it)
+    }
+}
