@@ -7,6 +7,7 @@ import io.github.Bucket1572.shuffle.plugin.tag.isIcon
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
 import org.bukkit.entity.Player
+import org.bukkit.event.Listener
 import org.bukkit.persistence.PersistentDataType
 
 object CleanUpUtility {
