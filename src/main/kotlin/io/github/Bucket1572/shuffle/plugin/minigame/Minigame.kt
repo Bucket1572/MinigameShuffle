@@ -27,6 +27,8 @@ abstract class Minigame(
     private val server: Server, val name: String, private val summary: String, private val iconMaterial: Material,
     private val details: List<String>, private val failConditions: List<String>
 ) {
+    val minigameLength = 20
+
     fun start() {
         broadcast()
         describe()
@@ -54,12 +56,16 @@ abstract class Minigame(
         val helperTools = getHelperTools()
         val shulkerPackage = PrepareUtility.shulkerPackage(minigameIcon, helperTools)
         server.feed(shulkerPackage)
+
+        additionalPreparation()
     }
 
     abstract fun getHelperTools(): List<ItemStack>
 
+    abstract fun additionalPreparation()
+
     private fun startCountDown() {
-        val timeLength = 10
+        val timeLength = minigameLength
         var remainingTime = timeLength
         val bossBar = BossBar.bossBar(
             Component.text(name).color(ColorTag.MINIGAME_TITLE.getTextColor()),
@@ -105,6 +111,8 @@ abstract class Minigame(
 
     abstract fun getRankings(): List<Player>
 
+    abstract fun additionalCleanUp()
+
     private fun winResponse(player: Player) {
         player.sendActionBar(Component.text("승리!").color(ColorTag.WIN.getTextColor()))
         player.win()
@@ -122,5 +130,6 @@ abstract class Minigame(
 
     private fun cleanUp() {
         server.cleanUp(this)
+        additionalCleanUp()
     }
 }
