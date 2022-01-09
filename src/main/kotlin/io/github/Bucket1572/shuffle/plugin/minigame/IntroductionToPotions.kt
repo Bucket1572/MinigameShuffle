@@ -23,7 +23,7 @@ import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.*
 import kotlin.random.Random
 
-class IntroductionToAlchemy(private val plugin: MinigameShufflePlugin):
+class IntroductionToPotions(private val plugin: MinigameShufflePlugin):
     Minigame(
         plugin.server, "포션학개론", "제시되는 효과의 포션을 가장 먼저 양조하세요.",
         Material.BLAZE_POWDER,
