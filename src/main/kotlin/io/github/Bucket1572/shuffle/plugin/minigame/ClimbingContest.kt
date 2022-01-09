@@ -1,6 +1,6 @@
 package io.github.Bucket1572.shuffle.plugin.minigame
 
-import io.github.Bucket1572.shuffle.plugin.minigame.description.DescriptionUtility
+import io.github.Bucket1572.shuffle.plugin.MinigameShufflePlugin
 import io.github.Bucket1572.shuffle.plugin.result.MinigameResult
 import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
 import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
 import org.bukkit.Material
-import org.bukkit.Server
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
@@ -16,9 +15,9 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import kotlin.math.abs
 
-class ClimbingContest(private val server: Server) :
+class ClimbingContest(private val plugin: MinigameShufflePlugin) :
     Minigame(
-        server, "높이높이 올라올라", "가장 높은 위치에 도달하세요.",
+        plugin.server, "높이높이 올라올라", "가장 높은 위치에 도달하세요.",
         Material.FIREWORK_ROCKET,
         listOf(
             "제한 시간 안에 가장 높은 위치에 도달해야 합니다.",
@@ -31,7 +30,11 @@ class ClimbingContest(private val server: Server) :
     ) {
 
     override fun getHelperTools(): List<ItemStack> {
-        return listOf()
+        return emptyList()
+    }
+
+    override fun additionalPreparation() {
+        return
     }
 
     override fun getRewards(): List<ItemStack> {
@@ -74,9 +77,13 @@ class ClimbingContest(private val server: Server) :
     }
 
     override fun getRankings(): List<Player> {
-        return server.onlinePlayers.sortedByDescending {
+        return plugin.server.onlinePlayers.sortedByDescending {
             getHeight(it)
         }
+    }
+
+    override fun additionalCleanUp() {
+        return
     }
 
     private fun getHeight(player: Player): Double {

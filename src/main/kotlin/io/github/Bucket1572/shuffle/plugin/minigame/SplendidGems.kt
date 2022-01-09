@@ -1,26 +1,17 @@
 package io.github.Bucket1572.shuffle.plugin.minigame
 
+import io.github.Bucket1572.shuffle.plugin.MinigameShufflePlugin
 import io.github.Bucket1572.shuffle.plugin.common.any
 import io.github.Bucket1572.shuffle.plugin.common.count
-import io.github.Bucket1572.shuffle.plugin.minigame.description.DescriptionUtility
-import io.github.Bucket1572.shuffle.plugin.minigame.prepare.PrepareUtility
-import io.github.Bucket1572.shuffle.plugin.minigame.prepare.feed
 import io.github.Bucket1572.shuffle.plugin.result.MinigameResult
-import io.github.Bucket1572.shuffle.plugin.score.fail
-import io.github.Bucket1572.shuffle.plugin.score.win
-import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
-import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
-import org.bukkit.Server
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-class SplendidGems(private val server: Server):
+class SplendidGems(private val plugin: MinigameShufflePlugin):
     Minigame(
-        server, "반짝이는 보석들", "다이아몬드, 에메랄드와 자수정을 가장 많이 모으세요.",
+        plugin.server, "반짝이는 보석들", "다이아몬드, 에메랄드와 자수정을 가장 많이 모으세요.",
         Material.DIAMOND_ORE,
         listOf(
             "제한 시간 안에 다이아몬드, 에메랄드와 자수정 조각을 최대한 많이 모아야 합니다.",
@@ -33,7 +24,11 @@ class SplendidGems(private val server: Server):
     )
 {
     override fun getHelperTools(): List<ItemStack> {
-        return listOf()
+        return emptyList()
+    }
+
+    override fun additionalPreparation() {
+        return
     }
 
     override fun judge(player: Player, rankings: List<Player>): MinigameResult {
@@ -49,9 +44,13 @@ class SplendidGems(private val server: Server):
     }
 
     override fun getRankings(): List<Player> {
-        return server.onlinePlayers.sortedByDescending {
+        return plugin.server.onlinePlayers.sortedByDescending {
             countJewels(it)
         }
+    }
+
+    override fun additionalCleanUp() {
+        return
     }
 
     override fun getRewards(): List<ItemStack> {
