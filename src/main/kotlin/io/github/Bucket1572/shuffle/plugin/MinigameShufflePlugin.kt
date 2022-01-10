@@ -53,6 +53,7 @@ class MinigameShufflePlugin: JavaPlugin() {
             MinigameTag.HIDE_AND_SEEK -> HideAndSeek(this)
             MinigameTag.DELIVERY -> OcelotDelivery(this)
             MinigameTag.ALCHEMY -> IntroductionToPotions(this)
+            MinigameTag.SPECIAL_ORDER -> SpecialOrder(this)
         }
         minigame.start()
     }
