@@ -6,6 +6,7 @@ import io.github.Bucket1572.shuffle.plugin.common.count
 import io.github.Bucket1572.shuffle.plugin.result.MinigameResult
 import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
 import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
+import io.github.Bucket1572.shuffle.plugin.tag.isHelper
 import io.github.Bucket1572.shuffle.plugin.tag.makeHelper
 import io.github.monun.tap.effect.playFirework
 import net.kyori.adventure.text.Component
@@ -22,50 +23,52 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryPickupItemEvent
 import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.player.PlayerItemBreakEvent
+import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.*
 import kotlin.random.Random
 
-class BlockShuffle(private val plugin: MinigameShufflePlugin):
+class SeriousDedicationProject(private val plugin: MinigameShufflePlugin):
     Minigame(
-        plugin.server, "블록 셔플", "제시되는 블록에 가장 먼저 올라가세요.",
-        Material.GRASS_BLOCK,
+        plugin.server, "도를 넘은 전념", "제공되는 아이템의 내구도를 전부 사용하세요.",
+        Material.WITHER_ROSE,
         listOf(
-            "제시되는 블록을 찾고 가장 먼저 올라가야 합니다."
+            "제공되는 아이템을 빨리 사용해야 합니다."
         ),
         listOf(
-            "제한 시간 내에 블록 위에 올라가지 못했을 경우"
+            "제한 시간 아이템을 사용하지 못했을 경우"
         )
     ), Listener
 {
-    private var targetBlock = ItemStack(Material.GRASS)
-    private val blockFinderRanking = mutableListOf<Player>()
+    private var targetItem = ItemStack(Material.NETHERITE_HOE)
+    private val dedicationRanking = mutableListOf<Player>()
 
     override fun getHelperTools(): List<ItemStack> {
-        return emptyList()
+        resetTarget()
+        return listOf(targetItem)
     }
 
     override fun additionalPreparation() {
-        resetTarget()
-        blockFinderRanking.clear()
-        broadcastTarget()
+        dedicationRanking.clear()
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 
     override fun judge(player: Player, rankings: List<Player>): MinigameResult {
-        if (player !in blockFinderRanking) return MinigameResult.FAIL
+        if (player !in dedicationRanking) return MinigameResult.FAIL
         if (player == rankings[0]) return MinigameResult.WIN
         return MinigameResult.LOSE
     }
 
     override fun getRankings(): List<Player> {
-        return blockFinderRanking
+        return dedicationRanking
     }
 
     override fun additionalCleanUp() {
-        InventoryClickEvent.getHandlerList().unregister(this)
+        PlayerItemBreakEvent.getHandlerList().unregister(this)
     }
 
     override fun getRewards(): List<ItemStack> {
@@ -73,50 +76,37 @@ class BlockShuffle(private val plugin: MinigameShufflePlugin):
     }
 
     private fun resetTarget() {
-        targetBlock = ItemStack(getBlock())
+        targetItem = ItemStack(getItem())
+        val durableFlag = Random.nextDouble()
+        if (durableFlag < 0.9) {
+            targetItem.addEnchantment(
+                Enchantment.DURABILITY,
+                Random.nextInt(1, 3)
+            )
+        }
+        targetItem.makeHelper(this)
     }
 
-    private fun broadcastTarget() {
-        plugin.server.broadcast(
-            Component.text("✔ 찾아야 할 블록").color(ColorTag.MINIGAME_DESCRIPTION.getTextColor())
-        )
-        plugin.server.broadcast(
-            (targetBlock.displayName() as TranslatableComponent)
-                .hoverEvent(targetBlock.asHoverEvent())
-        )
+    private fun getItem(): Material {
+        return getAllItem().random()
     }
 
-    private fun getBlock(): Material {
-        return getAllBlock().random()
-    }
-
-    private fun getAllBlock(): List<Material> {
+    private fun getAllItem(): List<Material> {
         return Material.values().filter {
-            it.isBlock
+            it.maxDurability > 0
         }
     }
 
     @EventHandler
-    fun onSteppingOnTarget(event: PlayerMoveEvent) {
-        if (!isTargetAchieved(event)) return
+    fun onDedicationEnd(event: PlayerItemBreakEvent) {
+        if (!isDedication(event)) return
 
-        blockFinderRanking.add(event.player)
-        val location = event.player.location
-        location.world.spawn(location, Firework::class.java).apply {
-            fireworkMeta = fireworkMeta.also { meta ->
-                meta.addEffect(
-                    FireworkEffect.builder().with(FireworkEffect.Type.STAR)
-                        .withColor(Color.LIME, Color.GREEN, Color.YELLOW)
-                        .build()
-                )
-                meta.power = 0
-            }
-        }
+        dedicationRanking.add(event.player)
     }
 
-    private fun isTargetAchieved(event: PlayerMoveEvent): Boolean {
-        val location = event.player.location
-        return (location.subtract(0.0, 0.3, 0.0).block.type == targetBlock.type)
-                && (event.player !in blockFinderRanking)
+    private fun isDedication(event: PlayerItemBreakEvent): Boolean {
+        return (event.brokenItem.type == targetItem.type)
+                && (event.brokenItem.isHelper(this))
+                && (event.player !in dedicationRanking)
     }
 }
