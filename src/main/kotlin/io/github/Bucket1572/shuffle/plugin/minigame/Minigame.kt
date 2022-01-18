@@ -27,7 +27,7 @@ abstract class Minigame(
     private val server: Server, val name: String, private val summary: String, private val iconMaterial: Material,
     private val details: List<String>, private val failConditions: List<String>
 ) {
-    val minigameLength = 60
+    val minigameLength = 300
 
     fun start() {
         broadcast()

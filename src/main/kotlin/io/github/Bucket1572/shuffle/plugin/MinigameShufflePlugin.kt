@@ -54,6 +54,9 @@ class MinigameShufflePlugin: JavaPlugin() {
             MinigameTag.DELIVERY -> OcelotDelivery(this)
             MinigameTag.ALCHEMY -> IntroductionToPotions(this)
             MinigameTag.SPECIAL_ORDER -> SpecialOrder(this)
+            MinigameTag.BLOCK_SHUFFLE -> BlockShuffle(this)
+            MinigameTag.DEDICATION -> SeriousDedicationProject(this)
+            MinigameTag.MUSICAL_BED -> MusicalBed(this)
         }
         minigame.start()
     }
