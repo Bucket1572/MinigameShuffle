@@ -7,7 +7,10 @@ import io.github.Bucket1572.shuffle.plugin.result.MinigameResult
 import io.github.Bucket1572.shuffle.plugin.tag.ColorTag
 import io.github.Bucket1572.shuffle.plugin.tag.getTextColor
 import io.github.Bucket1572.shuffle.plugin.tag.makeHelper
+import io.github.monun.heartbeat.coroutines.HeartbeatScope
+import io.github.monun.heartbeat.coroutines.Suspension
 import io.github.monun.tap.effect.playFirework
+import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.format.TextDecoration
@@ -22,46 +25,46 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryPickupItemEvent
 import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.*
 import kotlin.random.Random
 
-class BlockShuffle(private val plugin: MinigameShufflePlugin):
+class MusicalBed(private val plugin: MinigameShufflePlugin):
     Minigame(
-        plugin.server, "블록 셔플", "제시되는 블록에 가장 먼저 올라가세요.",
-        Material.GRASS_BLOCK,
+        plugin.server, "침대 뺏기", "밤이 되는 순간 잠에 드세요.",
+        Material.CLOCK,
         listOf(
-            "제시되는 블록을 찾고 가장 먼저 올라가야 합니다."
+            "주어진 5분의 시간 내 랜덤한 시점에 갑자기 밤이 찾아옵니다.",
+            "이때 다른 누구보다도 빨리 침대에 누워야 합니다.",
+            "자연적으로 찾아온 밤에 맞추어 침대에 누워도 인정됩니다."
         ),
         listOf(
-            "제한 시간 내에 블록 위에 올라가지 못했을 경우"
+            "제한 시간 내에 침대에 눕지 않은 경우"
         )
     ), Listener
 {
-    private var targetBlock = ItemStack(Material.GRASS)
-    private val blockFinderRanking = mutableListOf<Player>()
+    private val sleepingRanking = mutableListOf<Player>()
 
     override fun getHelperTools(): List<ItemStack> {
         return emptyList()
     }
 
     override fun additionalPreparation() {
-        resetTarget()
-        blockFinderRanking.clear()
-        broadcastTarget()
+        setBedTime()
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 
     override fun judge(player: Player, rankings: List<Player>): MinigameResult {
-        if (player !in blockFinderRanking) return MinigameResult.FAIL
+        if (player !in sleepingRanking) return MinigameResult.FAIL
         if (player == rankings[0]) return MinigameResult.WIN
         return MinigameResult.LOSE
     }
 
     override fun getRankings(): List<Player> {
-        return blockFinderRanking
+        return sleepingRanking
     }
 
     override fun additionalCleanUp() {
@@ -72,51 +75,25 @@ class BlockShuffle(private val plugin: MinigameShufflePlugin):
         return emptyList()
     }
 
-    private fun resetTarget() {
-        targetBlock = ItemStack(getBlock())
-    }
-
-    private fun broadcastTarget() {
-        plugin.server.broadcast(
-            Component.text("✔ 찾아야 할 블록").color(ColorTag.MINIGAME_DESCRIPTION.getTextColor())
-        )
-        plugin.server.broadcast(
-            (targetBlock.displayName() as TranslatableComponent)
-                .hoverEvent(targetBlock.asHoverEvent())
-        )
-    }
-
-    private fun getBlock(): Material {
-        return getAllBlock().random()
-    }
-
-    private fun getAllBlock(): List<Material> {
-        return Material.values().filter {
-            it.isBlock
+    private fun setBedTime() {
+        val timeUpperLimit = minigameLength - 20L
+        val timeLowerLimit = 20L
+        HeartbeatScope().launch {
+            val suspension = Suspension()
+            suspension.delay(Random.nextLong(timeLowerLimit, timeUpperLimit) * 1000)
+            plugin.server.worlds.forEach { it.time = 13000 }
         }
     }
 
     @EventHandler
-    fun onSteppingOnTarget(event: PlayerMoveEvent) {
-        if (!isTargetAchieved(event)) return
+    fun onSleeping(event: PlayerBedEnterEvent) {
+        if (!isGoingToBed(event)) return
 
-        blockFinderRanking.add(event.player)
-        val location = event.player.location
-        location.world.spawn(location, Firework::class.java).apply {
-            fireworkMeta = fireworkMeta.also { meta ->
-                meta.addEffect(
-                    FireworkEffect.builder().with(FireworkEffect.Type.STAR)
-                        .withColor(Color.LIME, Color.GREEN, Color.YELLOW)
-                        .build()
-                )
-                meta.power = 0
-            }
-        }
+        sleepingRanking.add(event.player)
     }
 
-    private fun isTargetAchieved(event: PlayerMoveEvent): Boolean {
-        val location = event.player.location
-        return (location.subtract(0.0, 0.3, 0.0).block.type == targetBlock.type)
-                && (event.player !in blockFinderRanking)
+    private fun isGoingToBed(event: PlayerBedEnterEvent): Boolean {
+        return (event.bedEnterResult == PlayerBedEnterEvent.BedEnterResult.OK)
+                && (event.player !in sleepingRanking)
     }
 }
